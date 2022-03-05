@@ -27,6 +27,7 @@ server.last_player_id = 0;
 
 // Main Server Code 
 var state = {}
+var placeholder_id = 0
 var connections = [] // Todo: store what conn is what player maybe 
 
 io.on('connection', (socket) => {
@@ -34,11 +35,19 @@ io.on('connection', (socket) => {
         // New Player Connected. The following code is specific to that player 
         socket.id = server.last_player_id++;
         console.log('new player: ', socket.id);
+        placeholder_id = socket.id;
 
         connections.push(socket);
 
         // Todo: tell client some starting info e.g. init 
         socket.broadcast.emit('init', socket.id);
+
+        // Get keyboard input 
+        socket.on('movement', (keys) => {
+            // Todo handle movement. 
+            // Keys is a list of key codes. Use uppoer for letters 
+            // Remember socket.id == player.id 
+        });
 
         // Init logic to handle player disconnet 
         socket.on('disconnect', () => {
@@ -58,27 +67,31 @@ io.on('connection', (socket) => {
 
 // Serverside Game Code 
 const FPS = 30
-global.phaserOnNodeFPS = FPS // default is 60
+global.phaserOnNodeFPS = FPS
 
 // your MainScene
-var x = 0;
-
 class MainScene extends Phaser.Scene {
   update(){
+    var new_state = {
+        players: [
+            {
+                x: 0,
+                y: 0,
+                id: 1
+            }
+        ]    
+    };
     io.emit('update', {
-        x: x
+        new_state
     });
-    x += 1;
-    if(x > 600)
-     x = 0;
   }
 }
 
 // prepare the config for Phaser
 const config = {
   type: Phaser.HEADLESS,
-  width: 1280,
-  height: 720,
+  width: 800,
+  height: 800,
   banner: false,
   audio: false,
   scene: [MainScene],
@@ -92,17 +105,3 @@ const config = {
 
 // start the game
 new Phaser.Game(config)
-
-// Server side functions 
-function get_all_players() {
-    var players = [];
-    for (const [_, socket] of io.of("/").sockets) {
-        var player = socket.player;
-        if(player) players.push(player);
-    }
-    return players;
-}
-
-function random_int(low, high){
-    return Math.floor(Math.random() * (high - low) + low);
-}

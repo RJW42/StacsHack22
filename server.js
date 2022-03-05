@@ -31,7 +31,7 @@ server.last_player_id = 0;
 const PLAYING = 0; //Symbol('Playing');
 const WAITING_FOR_PLAYERS = 1; //Symbol('Waiting');
 const COUNT_DOWN = 2; //Symbol('CountDown');
-const PLAYERS_PER_TEAM = 1;
+const PLAYERS_PER_TEAM = 2;
 
 
 // Main Server Code 
@@ -48,7 +48,6 @@ var state = {
 }
 var connections = {} // Todo: store what conn is what player maybe 
 var removes = []
-var team_0_inc = true;
 
 io.on('connection', (socket) => {
     socket.on('connect_to_server', () => {
@@ -65,28 +64,31 @@ io.on('connection', (socket) => {
             body: null,
         };
 
-        if(team_0_inc && state.team_0_count < PLAYERS_PER_TEAM){
+        if(state.team_0_count < PLAYERS_PER_TEAM){
             // Add to team 0
             console.log(' - Team 0');
             state.team_0_count++;
             socket.player.team = 0;
-        }else if(state.team_1_count < PLAYERS_PER_TEAM){
+        } else if(state.team_1_count < PLAYERS_PER_TEAM){
             // Add to team 1
             console.log(' - Team 1');
             state.team_1_count++;
             socket.player.team = 1;
-        }else {
+        } else {
             // Todo remove player 
             socket.disconnect();
             return;
         }
-        team_0_inc = !team_0_inc;
 
         state.players[socket.id] = socket.player;
         connections[socket.id] = socket;
 
         // Give Client Socket info 
-        socket.emit('init', socket.id);
+        console.log(socket.player.team);
+        socket.emit('init', {
+            id: socket.id, 
+            team: socket.player.team
+        });
 
         // Get keyboard input 
         socket.on('movement', (keys) => {
@@ -120,7 +122,7 @@ io.on('connection', (socket) => {
             if(socket.player.team == 0)
                 state.team_0_count--;
             else 
-                state.team_1_count++;
+                state.team_1_count--;
             delete connections[socket.id];
             delete state.players[socket.id];
         });

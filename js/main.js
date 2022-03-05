@@ -10,6 +10,7 @@ const SPECTATING = 3;
 scene.preload = () => {
     // Load all assets 
     scene.load.image('player', 'assets/sprites/player.png');
+    scene.load.image('team', 'assets/sprites/team.png');
     scene.load.image('enemy', 'assets/sprites/enemy.png');
     scene.keys = {
         up: scene.input.keyboard.addKey('W'),
@@ -39,10 +40,13 @@ scene.update = () => {
         player.obj.x = player.x
         player.obj.y = player.y
         if(player.obj.texture.key === '__MISSING'){
-            if(player_id != scene.player_id){
-                player.obj.setTexture('enemy');
+            if(player_id == scene.player_id){
+                player.obj.setTexture('player');
+            }else if(player.team == scene.player_team){
+                player.obj.setTexture('team')
             }else{
-                player.obj.setTexture('player')
+                player.obj.setTexture('enemy');
+                console.log(player, scene.player_team)
             }
         }
     }
@@ -62,7 +66,6 @@ scene.update = () => {
 }
 
 scene.draw_text = () => {
-    console.log(scene.state.game_state);
     switch(scene.state.game_state){
         case PLAYING:
             scene.score_text.setText('Score: ' + scene.state.team_0_score + '-' + scene.state.team_1_score);
@@ -72,13 +75,15 @@ scene.draw_text = () => {
         case COUNT_DOWN:
             scene.score_text.setText('T -' + Math.round(scene.state.time_left));
             break;
-        case SPECTATING:
-            scene.score_text.setText('Spectating');
+        //case SPECTATING:
+            //scene.score_text.setText('Spectating');
     }
 }
 
 scene.update_state = (server_state) => {
-    console.log(server_state);
+    //console.log(server_state);
+    if(!scene.loaded)
+        return;
 
     // Convert the state to client side 
     let new_state = {
@@ -98,23 +103,27 @@ scene.update_state = (server_state) => {
         if(scene.state.players[player_id]){
             obj = scene.state.players[player_id].obj;
         } else {
-            console.log('sprite', player_id);
+            console.log('sprite', player_id, server_state.players[player_id].team);
             if(player_id == scene.player_id){
                 obj = scene.add.sprite(-50, -50, 'player');
+            }else if(server_state.players[player_id].team == scene.player_team){
+                obj = scene.add.sprite(-50, -50, 'team');
             }else{
-                obj = scene.add.sprite(-50, -50, 'enemy')
+                obj = scene.add.sprite(-50, -50, 'enemy');
+                console.log(server_state.players[player_id], scene.player_team)
             }
         }
 
         new_state.players[player_id] = {
             x: server_state.players[player_id].x,
             y: server_state.players[player_id].y,
-            obj: obj
+            obj: obj,
+            team: server_state.players[player_id].team,
         }
     }
 
-    if(new_state.players[scene.player_id].spectating)
-        new_state.game_state = SPECTATING;
+    //if(new_state.players[scene.player_id].spectating)
+        //new_state.game_state = SPECTATING;
 
     // Check for deleted players 
     for(var player_id in scene.state.players){

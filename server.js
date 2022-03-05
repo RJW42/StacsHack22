@@ -36,6 +36,7 @@ var state = {
     }
 }
 var connections = {} // Todo: store what conn is what player maybe 
+var removes = []
 
 io.on('connection', (socket) => {
     socket.on('connect_to_server', () => {
@@ -80,6 +81,8 @@ io.on('connection', (socket) => {
         // Init logic to handle player disconnet 
         socket.on('disconnect', () => {
             // When a client disconects remove form the connections list 
+            //socket.player.body.destroy();
+            removes.push(socket.player.body);
             delete connections[socket.id];
             delete state.players[socket.id];
         });
@@ -87,12 +90,18 @@ io.on('connection', (socket) => {
 });
 
 // Serverside Game Code 
-const FPS = 30
+const FPS = 60
 global.phaserOnNodeFPS = FPS
 
 // your MainScene
 class MainScene extends Phaser.Scene {
   update(){
+    // Remove any dead collisions 
+    removes.forEach(body => {
+        this.matter.world.remove(body);    
+    })
+    removes = [];
+
     // Init all players 
     for (const [key, value] of Object.entries(state.players)) {
         if(value.body == null){

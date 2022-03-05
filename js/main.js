@@ -45,6 +45,8 @@ scene.update = () => {
 }
 
 scene.update_state = (server_state) => {
+    console.log(server_state);
+
     // Convert the state to client side 
     let new_state = {
         id: 0,

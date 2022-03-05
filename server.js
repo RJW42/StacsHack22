@@ -10,6 +10,7 @@ const io = new Server(server, {
 require('@geckos.io/phaser-on-nodejs')
 const Phaser = require('phaser');
 const { stat } = require('fs');
+const { Body } = require('matter');
 
 
 app.use('/css',express.static(__dirname + '/css'));
@@ -42,13 +43,15 @@ io.on('connection', (socket) => {
         socket.id = server.last_player_id++;
         console.log('new player: ', socket.id);
         
-        state.players[socket.id] = {
+        socket.player = {
             x: randomInt(0, 800),
             y: randomInt(0, 800),
             velx: 0,
-            vely: 0
+            vely: 0,
+            body: null,
         };
 
+        state.players[socket.id] = socket.player;
         connections[socket.id] = socket;
 
         // Todo: tell client some starting info e.g. init 
@@ -59,14 +62,19 @@ io.on('connection', (socket) => {
             // Todo handle movement. 
             // Keys is a list of key codes. Use uppoer for letters 
             // Remember socket.id == player.id 
-            if(keys.right)
-                state.players[socket.id].velx += 1;
+            
+            state.players[socket.id].velx = 0;
+            state.players[socket.id].vely = 0;
+            augment =  0.0001
+            if(keys.right){
+                state.players[socket.id].velx = augment;
+            }
             if(keys.left)
-                state.players[socket.id].velx -= 1;
+                state.players[socket.id].velx = -augment;
             if(keys.up)
-                state.players[socket.id].vely -= 1;
+                state.players[socket.id].vely = -augment;
             if(keys.down)
-                state.players[socket.id].vely += 1;
+                state.players[socket.id].vely = augment;
         });
 
         // Init logic to handle player disconnet 
@@ -84,15 +92,50 @@ global.phaserOnNodeFPS = FPS
 
 // your MainScene
 class MainScene extends Phaser.Scene {
+
+    constructor() {
+        super();
+        // Top wall
+        //var topWall = this.matter.bodies.rectangle(0, 0, 1600, 0, {isStatic: true});
+
+        // bottom wall
+        //var bottomWall = this.matter.bodies.rectangle(0, 800, 1600, 800, {isStatic: true});
+
+        // Left wall
+        //var leftWall = this.matter.bodies.rectangle(0, 0, 0, 800, {isStatic: true});
+
+        // Right wall
+        //var rightWall = this.matter.bodies.rectangle(1600, 0, 1600, 800, {isStatic: true});
+
+    }
+
   update(){
-    // Updating the players positions
+    // Init all players 
     for (const [key, value] of Object.entries(state.players)) {
-        state.players[key].x += state.players[key].velx
-        state.players[key].y += state.players[key].vely
+        if(value.body == null){
+            value.body = this.matter.bodies.rectangle(value.x, value.y, 21, 32);
+
+            this.matter.world.add(value.body);
+        }
+        this.matter.body.applyForce(value.body, value.body.position, {x: value.velx, y: value.vely});
+    }
+
+    // Updating the players positions
+    var send_state = {
+        players: {
+
+        }
+    }
+
+    for (const [key, value] of Object.entries(state.players)) {
+        send_state.players[key] = {
+            x: value.body.position.x,
+            y: value.body.position.y
+        }
     }
     
     io.emit('update', 
-        state
+        send_state
     );
   }
 }
@@ -110,6 +153,10 @@ const config = {
   },
   physics: {
     default: 'matter',
+    matter: {
+        gravity: false,
+        setBounds: true
+    }
   }
 }
 

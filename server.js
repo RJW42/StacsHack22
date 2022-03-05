@@ -47,6 +47,22 @@ io.on('connection', (socket) => {
             // Todo handle movement. 
             // Keys is a list of key codes. Use uppoer for letters 
             // Remember socket.id == player.id 
+            keys.array.forEach(key => {
+                switch (key) {
+                    case 87 :  // W
+                        y-=1;
+                        break;
+                    case 65 : // A
+                        x-=1;
+                        break;
+                    case 83 : // S
+                        y+=1;
+                        break;
+                    case 68 : // D
+                        x+=1;
+                        break;
+                }
+            });
         });
 
         // Init logic to handle player disconnet 

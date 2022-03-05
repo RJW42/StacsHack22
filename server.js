@@ -12,6 +12,16 @@ const Phaser = require('phaser');
 const { stat } = require('fs');
 const { Body } = require('matter');
 
+// Game Engine Code 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'DELETE, PUT');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    if ('OPTIONS' == req.method) {
+       res.sendStatus(200);
+    } else {
+       next();
+}});
 
 app.use('/css',express.static(__dirname + '/css'));
 app.use('/js',express.static(__dirname + '/js'));

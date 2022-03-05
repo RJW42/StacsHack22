@@ -1,13 +1,11 @@
 var scene = new Phaser.Scene('Game');
 
+scene.connected = false;
+
 scene.preload = () => {
     // Load all assets 
-    //this.load.tilemap('map', 'assets/map/example_map.json', null, Phaser.Tilemap.TILED_JSON);
-    //this.load.spritesheet('tileset', 'assets/map/tilesheet.png',32,32);
-    scene.load.image('sprite','assets/sprites/sprite.png');
-    scene.load.image('backgorund', 'assets/sprites/test.png')
-    scene.load.image('player', 'assets/sprites/player.png');
-    scene.load.image('enemy', 'assets/sprites/enemy.png');
+    scene.load.image('player', 'http://138.251.29.186:8081/assets/sprites/player.png');
+    scene.load.image('enemy', 'http://138.251.29.186:8081/assets/sprites/enemy.png');
     scene.keys = {
         up: scene.input.keyboard.addKey('W'),
         down: scene.input.keyboard.addKey('S'),
@@ -28,9 +26,16 @@ scene.update = () => {
         return;
 
     // State set render the state 
-    for(var player_id in scene.state.players){
-        scene.state.players[player_id].obj.x = scene.state.players[player_id].x
-        scene.state.players[player_id].obj.y = scene.state.players[player_id].y
+    for(const [player_id, player] of Object.entries(scene.state.players)){
+        player.obj.x = player.x
+        player.obj.y = player.y
+        if(player.obj.texture.key === '__MISSING'){
+            if(player_id != scene.player_id){
+                player.obj.setTexture('enemy');
+            }else{
+                player.obj.setTexture('player')
+            }
+        }
     }
 
     // Send keyboard input 
@@ -63,6 +68,7 @@ scene.update_state = (server_state) => {
                 obj = scene.add.sprite(-50, -50, 'player');
             }else{
                 obj = scene.add.sprite(-50, -50, 'enemy')
+                console.log(obj);
             }
         }
 

@@ -6,7 +6,8 @@ const server = require('http').Server(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 require('@geckos.io/phaser-on-nodejs')
-const Phaser = require('phaser')
+const Phaser = require('phaser');
+const { stat } = require('fs');
 
 
 app.use('/css',express.static(__dirname + '/css'));
@@ -41,7 +42,9 @@ io.on('connection', (socket) => {
         
         state.players[socket.id] = {
             x: 0,
-            y: 0
+            y: 0,
+            velx: 0,
+            vely: 0
         };
 
         connections[socket.id] = socket;
@@ -55,13 +58,13 @@ io.on('connection', (socket) => {
             // Keys is a list of key codes. Use uppoer for letters 
             // Remember socket.id == player.id 
             if(keys.right)
-                state.players[socket.id].x += 1;
+                state.players[socket.id].velx += 1;
             if(keys.left)
-                state.players[socket.id].x -= 1;
+                state.players[socket.id].velx -= 1;
             if(keys.up)
-                state.players[socket.id].y -= 1;
+                state.players[socket.id].vely -= 1;
             if(keys.down)
-                state.players[socket.id].y += 1;
+                state.players[socket.id].vely += 1;
         });
 
         // Init logic to handle player disconnet 
@@ -80,6 +83,12 @@ global.phaserOnNodeFPS = FPS
 // your MainScene
 class MainScene extends Phaser.Scene {
   update(){
+    // Updating the players positions
+    for (const [key, value] of Object.entries(state.players)) {
+        state.players[key].x += state.players[key].velx
+        state.players[key].y += state.players[key].vely
+    }
+    
     io.emit('update', 
         state
     );

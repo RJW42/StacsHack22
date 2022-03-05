@@ -66,21 +66,17 @@ io.on('connection', (socket) => {
             body: null,
         };
 
-        if(state.team_0_count < PLAYERS_PER_TEAM){
+        if(state.team_0_count < state.team_1_count){
             // Add to team 0
             console.log(' - Team 0');
             state.team_0_count++;
             socket.player.team = 0;
-        } else if(state.team_1_count < PLAYERS_PER_TEAM){
+        } else {
             // Add to team 1
             console.log(' - Team 1');
             state.team_1_count++;
             socket.player.team = 1;
-        } else {
-            // Todo remove player 
-            socket.disconnect();
-            return;
-        }
+        } 
 
         state.players[socket.id] = socket.player;
         connections[socket.id] = socket;

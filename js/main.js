@@ -14,15 +14,20 @@ scene.create = () => {
 }
 
 scene.update = () => {
+    // Check if state is set 
     if(scene.state == null)
         return;
-    if(scene.obj == null)
-        scene.obj = scene.add.sprite(scene.state.x, 100, 'sprite');
-    scene.obj.x = scene.state.x
+
+    // State set render the state 
 }
 
 scene.update_state = (state) => {
-    scene.state = state;
+    // Convert the state to client side 
+    let new_state = null;
+
+
+    // Update the state 
+    scene.state = new_state;
 }
 
 scene.state = null;

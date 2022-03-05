@@ -77,7 +77,7 @@ class MainScene extends Phaser.Scene {
             {
                 x: 0,
                 y: 0,
-                id: 1
+                id: placeholder_id
             }
         ]    
     };

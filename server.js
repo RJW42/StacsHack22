@@ -23,6 +23,9 @@ server.last_player_id = 0;
 
 
 // Main Server Code 
+var state = {}
+var connections = [] // Todo: store what conn is what player maybe 
+
 io.on('connection', (socket) => {
     socket.on('newplayer', () => {
         // New Player Connected. The following code is specific to that player 
@@ -32,18 +35,31 @@ io.on('connection', (socket) => {
             y : random_int(100, 400)
         };
 
-        socket.emit('allplayers', get_all_players());
+        connections.push(socket);
+
+        // Todo: tell client some starting info e.g. init 
         socket.broadcast.emit('newplayer', socket.player);
 
         socket.on('disconnect', () => {
-            console.log('disconnect');
-            io.emit('remove', socket.player.id);
+            // Todo: remove client form connections list 
+            // Todo: update state to remove clients player 
         });
 
         console.log('new player');
     });
     console.log('connection');
 });
+
+// Serverside Game Code 
+setInterval(() => {
+    // Update State 
+    
+    // Send State
+    io.emit('update', state);
+    
+    // Check for inputs 
+}, 33);
+
 
 
 // Server side functions 

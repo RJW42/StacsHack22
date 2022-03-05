@@ -9,18 +9,14 @@ scene.preload = () => {
 }
 
 scene.create = () => {
-    console.log('yee');
+    console.log('Start');
     Client.send_new_player();
 }
 
-scene.add_new_player = (id, x, y) => {
-    scene.add.image(x, y, 'sprite');
+scene.update_state = (state) => {
+    
 }
 
-scene.remove_player = (id) => {
-    scene.player_map[id].destroy();
-    delete scene.player_map[id];
-};
 
 var config = {
     type: Phaser.AUTO,

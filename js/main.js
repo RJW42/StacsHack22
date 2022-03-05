@@ -6,6 +6,8 @@ scene.preload = () => {
     //this.load.spritesheet('tileset', 'assets/map/tilesheet.png',32,32);
     scene.load.image('sprite','assets/sprites/sprite.png');
     scene.load.image('backgorund', 'assets/sprites/test.png')
+    scene.load.image('player', 'assets/sprites/player.png');
+    scene.load.image('enemy', 'assets/sprites/enemy.png');
     scene.keys = {
         up: scene.input.keyboard.addKey('W'),
         down: scene.input.keyboard.addKey('S'),
@@ -57,7 +59,11 @@ scene.update_state = (server_state) => {
             obj = scene.state.players[player_id].obj;
         } else {
             console.log('sprite', player_id);
-            obj = scene.add.sprite(0, 0, 'sprite');;
+            if(player_id == scene.player_id){
+                obj = scene.add.sprite(-50, -50, 'player');
+            }else{
+                obj = scene.add.sprite(-50, -50, 'enemy')
+            }
         }
 
         new_state.players[player_id] = {
@@ -87,7 +93,8 @@ var config = {
     type: Phaser.AUTO,
     width: 1600,
     height: 800,
-    scene: scene
+    scene: scene,
+    backgroundColor: '#d5f5f7',
 }
 
 var game = new Phaser.Game(config);

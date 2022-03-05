@@ -68,6 +68,7 @@ io.on('connection', (socket) => {
 // Serverside Game Code 
 const FPS = 30
 global.phaserOnNodeFPS = FPS
+var x = 0;
 
 // your MainScene
 class MainScene extends Phaser.Scene {
@@ -77,12 +78,15 @@ class MainScene extends Phaser.Scene {
         }
     };
     new_state.players[placeholder_id] = {
-        x: 0,
+        x: x,
         y: 0
     };
-    io.emit('update', {
+    io.emit('update', 
         new_state
-    });
+    );
+    x += 1;
+    if(x > 600)
+        x = 0;
   }
 }
 

@@ -9,7 +9,7 @@ Client.socket.on('init',function(player_id){
 // All client side code 
 Client.connect = function(){
     // Create new connection to server 
-    scene.player_id = 0;
+    scene.state.id = 0;
     Client.socket.emit('connect_to_server');
 };
 

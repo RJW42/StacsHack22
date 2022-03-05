@@ -7,11 +7,11 @@ scene.preload = () => {
     scene.load.image('sprite','assets/sprites/sprite.png');
     scene.load.image('backgorund', 'assets/sprites/test.png')
     scene.keys = {
-        UP: scene.input.keyboard.addKey('W'),
-        DOWN: scene.input.keyboard.addKey('S'),
-        LEFT: scene.input.keyboard.addKey('A'),
-        RIGHT: scene.input.keyboard.addKey('D'),
-        SPACE: scene.input.keyboard.addKey('space'),
+        up: scene.input.keyboard.addKey('W'),
+        down: scene.input.keyboard.addKey('S'),
+        left: scene.input.keyboard.addKey('A'),
+        right: scene.input.keyboard.addKey('D'),
+        space: scene.input.keyboard.addKey('space'),
     }
 }
 
@@ -39,7 +39,7 @@ scene.update = () => {
         right: scene.keys.right.isDown,
         space: scene.keys.space.isDown,
     }
-    Client.socket.emit(keys);
+    Client.socket.emit('movement', keys);
 }
 
 scene.update_state = (server_state) => {

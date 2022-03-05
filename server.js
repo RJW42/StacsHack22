@@ -26,18 +26,25 @@ server.last_player_id = 0;
 
 
 // Main Server Code 
-var state = {}
-var placeholder_id = 0
-var connections = [] // Todo: store what conn is what player maybe 
+var state = {
+    players: {
+
+    }
+}
+var connections = {} // Todo: store what conn is what player maybe 
 
 io.on('connection', (socket) => {
     socket.on('connect_to_server', () => {
         // New Player Connected. The following code is specific to that player 
         socket.id = server.last_player_id++;
         console.log('new player: ', socket.id);
-        placeholder_id = socket.id;
+        
+        state.players[socket.id] = {
+            x: 0,
+            y: 0
+        };
 
-        connections.push(socket);
+        connections[socket.id] = socket;
 
         // Todo: tell client some starting info e.g. init 
         socket.broadcast.emit('init', socket.id);
@@ -47,36 +54,21 @@ io.on('connection', (socket) => {
             // Todo handle movement. 
             // Keys is a list of key codes. Use uppoer for letters 
             // Remember socket.id == player.id 
-            keys.array.forEach(key => {
-                switch (key) {
-                    case 87 :  // W
-                        state.players[socket.id].y-=1;
-                        break;
-                    case 65 : // A
-                        state.players[socket.id].x-=1;
-                        break;
-                    case 83 : // S
-                        state.players[socket.id].y+=1;
-                        break;
-                    case 68 : // D
-                        state.players[socket.id].x+=1;
-                        break;
-                }
-            });
+            if(keys.right)
+                state.players[socket.id].x += 1;
+            if(keys.left)
+                state.players[socket.id].x -= 1;
+            if(keys.up)
+                state.players[socket.id].y -= 1;
+            if(keys.down)
+                state.players[socket.id].y += 1;
         });
 
         // Init logic to handle player disconnet 
         socket.on('disconnect', () => {
             // When a client disconects remove form the connections list 
-            console.log('player disconnet: ', socket.id);
-            var index = 0;
-            for(var i = 0; i < connections.length; i++){
-                if(connections[i].id == socket.id){
-                    index = i;
-                    break;
-                }
-            }
-            connections.splice(index, 1);
+            delete connections[socket.id];
+            delete state.players[socket.id];
         });
     });
 });
@@ -84,25 +76,13 @@ io.on('connection', (socket) => {
 // Serverside Game Code 
 const FPS = 30
 global.phaserOnNodeFPS = FPS
-var x = 0;
 
 // your MainScene
 class MainScene extends Phaser.Scene {
   update(){
-    var new_state = {
-        players: {
-        }
-    };
-    new_state.players[placeholder_id] = {
-        x: x,
-        y: 0
-    };
     io.emit('update', 
-        new_state
+        state
     );
-    x += 1;
-    if(x > 600)
-        x = 0;
   }
 }
 

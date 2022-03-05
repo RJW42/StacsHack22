@@ -2,6 +2,11 @@ var scene = new Phaser.Scene('Game');
 
 scene.connected = false;
 
+const PLAYING = 0; //Symbol('Playing');
+const WAITING_FOR_PLAYERS = 1; //Symbol('Waiting');
+const COUNT_DOWN = 2; //Symbol('CountDown');
+const SPECTATING = 3;
+
 scene.preload = () => {
     // Load all assets 
     scene.load.image('player', 'assets/sprites/player.png');
@@ -13,6 +18,10 @@ scene.preload = () => {
         right: scene.input.keyboard.addKey('D'),
         space: scene.input.keyboard.addKey('space'),
     }
+    scene.score_text = scene.add.text(0, 0, 'Waiting For Players', {
+        fontSize: 60,
+        color: 'black',
+    });
 }
 
 scene.create = () => {
@@ -38,6 +47,9 @@ scene.update = () => {
         }
     }
 
+    // Draw Text
+    scene.draw_text();
+
     // Send keyboard input 
     keys = {
         up: scene.keys.up.isDown,
@@ -49,11 +61,34 @@ scene.update = () => {
     Client.socket.emit('movement', keys);
 }
 
+scene.draw_text = () => {
+    console.log(scene.state.game_state);
+    switch(scene.state.game_state){
+        case PLAYING:
+            scene.score_text.setText('Score: ' + scene.state.team_0_score + '-' + scene.state.team_1_score);
+            break;
+        case WAITING_FOR_PLAYERS:
+            break;
+        case COUNT_DOWN:
+            scene.score_text.setText('T -' + Math.round(scene.state.time_left));
+            break;
+        case SPECTATING:
+            scene.score_text.setText('Spectating');
+    }
+}
+
 scene.update_state = (server_state) => {
+    console.log(server_state);
+
     // Convert the state to client side 
     let new_state = {
         id: 0,
-        players: {}
+        team: 0,
+        players: {},
+        game_state: server_state.game_state,
+        time_left: server_state.time_left,
+        team_0_score: server_state.team_0_score,
+        team_1_score: server_state.team_1_score,
     }
 
     for(var player_id in server_state.players) {
@@ -68,7 +103,6 @@ scene.update_state = (server_state) => {
                 obj = scene.add.sprite(-50, -50, 'player');
             }else{
                 obj = scene.add.sprite(-50, -50, 'enemy')
-                console.log(obj);
             }
         }
 
@@ -78,6 +112,9 @@ scene.update_state = (server_state) => {
             obj: obj
         }
     }
+
+    if(new_state.players[scene.player_id].spectating)
+        new_state.game_state = SPECTATING;
 
     // Check for deleted players 
     for(var player_id in scene.state.players){

@@ -1,0 +1,10 @@
+=======### Murder on Ice ###========
+
+Slide around the ice and try to place markers next to the pieces of evidence
+on the ice.
+
+Try to have your markers closer to the evidence than your oppenent.
+
+Don't disturb the crime scene - i.e. don't run over the evidence.
+
+Will create points based on closest markers and penalties for ruining evidence.

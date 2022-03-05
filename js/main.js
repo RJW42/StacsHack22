@@ -6,6 +6,13 @@ scene.preload = () => {
     //this.load.spritesheet('tileset', 'assets/map/tilesheet.png',32,32);
     scene.load.image('sprite','assets/sprites/sprite.png');
     scene.load.image('backgorund', 'assets/sprites/test.png')
+    scene.keys = {
+        UP: scene.input.keyboard.addKey('W'),
+        DOWN: scene.input.keyboard.addKey('S'),
+        LEFT: scene.input.keyboard.addKey('A'),
+        RIGHT: scene.input.keyboard.addKey('D'),
+        SPACE: scene.input.keyboard.addKey('space'),
+    }
 }
 
 scene.create = () => {
@@ -23,6 +30,16 @@ scene.update = () => {
         scene.state.players[player_id].obj.x = scene.state.players[player_id].x
         scene.state.players[player_id].obj.y = scene.state.players[player_id].y
     }
+
+    // Send keyboard input 
+    keys = {
+        up: scene.keys.up.isDown,
+        down: scene.keys.down.isDown,
+        left: scene.keys.left.isDown,
+        right: scene.keys.right.isDown,
+        space: scene.keys.space.isDown,
+    }
+    Client.socket.emit(keys);
 }
 
 scene.update_state = (server_state) => {

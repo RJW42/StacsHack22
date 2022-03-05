@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
             
             state.players[socket.id].velx = 0;
             state.players[socket.id].vely = 0;
-            augment =  0.0001
+            augment =  0.001
             if(keys.right){
                 state.players[socket.id].velx = augment;
             }

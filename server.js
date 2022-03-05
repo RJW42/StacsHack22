@@ -5,6 +5,9 @@ const app = express();
 const server = require('http').Server(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
+require('@geckos.io/phaser-on-nodejs')
+const Phaser = require('phaser')
+
 
 app.use('/css',express.static(__dirname + '/css'));
 app.use('/js',express.static(__dirname + '/js'));
@@ -27,40 +30,68 @@ var state = {}
 var connections = [] // Todo: store what conn is what player maybe 
 
 io.on('connection', (socket) => {
-    socket.on('newplayer', () => {
+    socket.on('connect_to_server', () => {
         // New Player Connected. The following code is specific to that player 
-        socket.player = {
-            id: server.last_player_id++,
-            x : random_int(100, 400),
-            y : random_int(100, 400)
-        };
+        socket.id = server.last_player_id++;
+        console.log('new player: ', socket.id);
 
         connections.push(socket);
 
         // Todo: tell client some starting info e.g. init 
-        socket.broadcast.emit('newplayer', socket.player);
+        socket.broadcast.emit('init', socket.id);
 
+        // Init logic to handle player disconnet 
         socket.on('disconnect', () => {
-            // Todo: remove client form connections list 
-            // Todo: update state to remove clients player 
+            // When a client disconects remove form the connections list 
+            console.log('player disconnet: ', socket.id);
+            var index = 0;
+            for(var i = 0; i < connections.length; i++){
+                if(connections[i].id == socket.id){
+                    index = i;
+                    break;
+                }
+            }
+            connections.splice(index, 1);
         });
-
-        console.log('new player');
     });
-    console.log('connection');
 });
 
 // Serverside Game Code 
-setInterval(() => {
-    // Update State 
-    
-    // Send State
-    io.emit('update', state);
-    
-    // Check for inputs 
-}, 33);
+const FPS = 30
+global.phaserOnNodeFPS = FPS // default is 60
 
+// your MainScene
+var x = 0;
 
+class MainScene extends Phaser.Scene {
+  update(){
+    io.emit('update', {
+        x: x
+    });
+    x += 1;
+    if(x > 600)
+     x = 0;
+  }
+}
+
+// prepare the config for Phaser
+const config = {
+  type: Phaser.HEADLESS,
+  width: 1280,
+  height: 720,
+  banner: false,
+  audio: false,
+  scene: [MainScene],
+  fps: {
+    target: FPS
+  },
+  physics: {
+    default: 'matter',
+  }
+}
+
+// start the game
+new Phaser.Game(config)
 
 // Server side functions 
 function get_all_players() {

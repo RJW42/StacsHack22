@@ -85,7 +85,7 @@ scene.state = {
 
 var config = {
     type: Phaser.AUTO,
-    width: 800,
+    width: 1600,
     height: 800,
     scene: scene
 }

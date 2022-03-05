@@ -100,7 +100,7 @@ class MainScene extends Phaser.Scene {
 // prepare the config for Phaser
 const config = {
   type: Phaser.HEADLESS,
-  width: 800,
+  width: 1600,
   height: 800,
   banner: false,
   audio: false,

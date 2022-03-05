@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
         connections[socket.id] = socket;
 
         // Todo: tell client some starting info e.g. init 
-        socket.broadcast.emit('init', socket.id);
+        socket.emit('init', socket.id);
 
         // Get keyboard input 
         socket.on('movement', (keys) => {
@@ -92,23 +92,6 @@ global.phaserOnNodeFPS = FPS
 
 // your MainScene
 class MainScene extends Phaser.Scene {
-
-    constructor() {
-        super();
-        // Top wall
-        //var topWall = this.matter.bodies.rectangle(0, 0, 1600, 0, {isStatic: true});
-
-        // bottom wall
-        //var bottomWall = this.matter.bodies.rectangle(0, 800, 1600, 800, {isStatic: true});
-
-        // Left wall
-        //var leftWall = this.matter.bodies.rectangle(0, 0, 0, 800, {isStatic: true});
-
-        // Right wall
-        //var rightWall = this.matter.bodies.rectangle(1600, 0, 1600, 800, {isStatic: true});
-
-    }
-
   update(){
     // Init all players 
     for (const [key, value] of Object.entries(state.players)) {

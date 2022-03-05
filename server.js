@@ -4,7 +4,9 @@ const { Socket } = require('socket.io');
 const app = express();
 const server = require('http').Server(app);
 const { Server } = require('socket.io');
-const io = new Server(server);
+const io = new Server(server, {
+    pingTimeout: 500
+});
 require('@geckos.io/phaser-on-nodejs')
 const Phaser = require('phaser')
 
@@ -40,8 +42,8 @@ io.on('connection', (socket) => {
         console.log('new player: ', socket.id);
         
         state.players[socket.id] = {
-            x: 0,
-            y: 0
+            x: randomInt(0, 800),
+            y: randomInt(0, 800)
         };
 
         connections[socket.id] = socket;

@@ -67,6 +67,13 @@ scene.update_state = (server_state) => {
         }
     }
 
+    // Check for deleted players 
+    for(var player_id in scene.state.players){
+        if(!new_state.players[player_id]){
+            scene.state.players[player_id].obj.destroy(true);
+        }
+    }
+
     // Update the state 
     scene.state = new_state;
 }

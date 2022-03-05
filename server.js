@@ -31,7 +31,7 @@ server.last_player_id = 0;
 const PLAYING = 0; //Symbol('Playing');
 const WAITING_FOR_PLAYERS = 1; //Symbol('Waiting');
 const COUNT_DOWN = 2; //Symbol('CountDown');
-const PLAYERS_PER_TEAM = 2;
+const PLAYERS_PER_TEAM = 1;
 
 
 // Main Server Code 
@@ -45,6 +45,8 @@ var state = {
     team_1_score: 0,
     team_0_count: 0,
     team_1_count: 0,
+    dead_body_pos: {x: 800, y: 400},
+    dead_body_body: null,
 }
 var connections = {} // Todo: store what conn is what player maybe 
 var removes = []
@@ -135,6 +137,32 @@ global.phaserOnNodeFPS = FPS
 
 // your MainScene
 class MainScene extends Phaser.Scene {
+  create(){
+    state.dead_body_body = this.matter.bodies.rectangle(
+        state.dead_body_pos.x, state.dead_body_pos.y, 32, 32, {
+            friction: 0.0001
+        }
+    );
+    state.dead_body_body.restitution = 1;
+
+    state.team_0_goal = this.matter.bodies.rectangle(
+        8, 400, 16, 128, {isStatic: true}
+    );
+    state.team_0_goal.setOnCollideWith(state.dead_body_body, (pair) => {
+        this.goal_left();
+    })
+    state.team_1_goal = this.matter.bodies.rectangle(
+        1600 - 8, 400, 16, 128, {isStatic: true}
+    );
+    state.team_1_goal.setOnCollideWith(state.dead_body_body, (pair) => {
+        this.goal_right();
+    })
+
+    this.matter.world.add(state.dead_body_body);
+    this.matter.world.add(state.team_0_goal);
+    this.matter.world.add(state.team_1_goal);
+  }
+
   update(){
     // Update game state 
     this.update_game_state();
@@ -167,7 +195,19 @@ class MainScene extends Phaser.Scene {
         team_0_score: state.team_0_score,
         team_1_score: state.team_1_score,
         team_0_count: state.team_0_count,
-        team_1_count: state.team_1_count
+        team_1_count: state.team_1_count,
+        dead_body_pos: {
+            x: state.dead_body_body.position.x,
+            y: state.dead_body_body.position.y
+        },
+        team_0_goal_pos: {
+            x: state.team_0_goal.position.x,
+            y: state.team_0_goal.position.y
+        },
+        team_1_goal_pos: {
+            x: state.team_1_goal.position.x,
+            y: state.team_1_goal.position.y
+        }
     }
 
     for (const [key, value] of Object.entries(state.players)) {
@@ -192,6 +232,19 @@ class MainScene extends Phaser.Scene {
     io.emit('update', 
         send_state
     );
+  }
+
+  goal_left(){
+    state.team_1_score++;
+    this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+    this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
+    
+  }
+
+  goal_right(){
+    state.team_0_score++;
+    this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+    this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
   }
 
   update_game_state() {

@@ -7,11 +7,17 @@ const WAITING_FOR_PLAYERS = 1; //Symbol('Waiting');
 const COUNT_DOWN = 2; //Symbol('CountDown');
 const SPECTATING = 3;
 
+
+scene.dead_body_obj = null;
+
 scene.preload = () => {
     // Load all assets 
     scene.load.image('player', 'assets/sprites/player.png');
     scene.load.image('team', 'assets/sprites/team.png');
     scene.load.image('enemy', 'assets/sprites/enemy.png');
+    scene.load.image('dead_body', 'assets/sprites/dead_body.png');
+    scene.load.image('enemy_goal', 'assets/sprites/enemy_goal.png');
+    scene.load.image('player_goal', 'assets/sprites/player_goal.png');
     scene.keys = {
         up: scene.input.keyboard.addKey('W'),
         down: scene.input.keyboard.addKey('S'),
@@ -48,6 +54,24 @@ scene.update = () => {
                 player.obj.setTexture('enemy');
                 console.log(player, scene.player_team)
             }
+        }
+    }
+
+    if(scene.dead_body_obj != null) {
+        scene.dead_body_obj.x = scene.state.dead_body_pos.x
+        scene.dead_body_obj.y = scene.state.dead_body_pos.y
+    }
+    if(scene.player_goal_obj != null){
+        if(scene.player_team == 0){
+            scene.player_goal_obj.x = scene.state.team_0_goal_pos.x;
+            scene.player_goal_obj.y = scene.state.team_0_goal_pos.y;
+            scene.enemy_goal_obj.x = scene.state.team_1_goal_pos.x;
+            scene.enemy_goal_obj.y = scene.state.team_1_goal_pos.y;
+        } else {
+            scene.player_goal_obj.x = scene.state.team_1_goal_pos.x;
+            scene.player_goal_obj.y = scene.state.team_1_goal_pos.y;
+            scene.enemy_goal_obj.x = scene.state.team_0_goal_pos.x;
+            scene.enemy_goal_obj.y = scene.state.team_0_goal_pos.y;
         }
     }
 
@@ -94,6 +118,9 @@ scene.update_state = (server_state) => {
         time_left: server_state.time_left,
         team_0_score: server_state.team_0_score,
         team_1_score: server_state.team_1_score,
+        dead_body_pos: server_state.dead_body_pos,
+        team_0_goal_pos: server_state.team_0_goal_pos,
+        team_1_goal_pos: server_state.team_1_goal_pos
     }
 
     for(var player_id in server_state.players) {
@@ -122,6 +149,13 @@ scene.update_state = (server_state) => {
         }
     }
 
+    if(scene.dead_body_obj == null)
+        scene.dead_body_obj = scene.add.sprite(-50, -50, 'dead_body');
+    if(scene.player_goal_obj == null){
+        scene.player_goal_obj = scene.add.sprite(-50, -50, 'player_goal');
+        scene.enemy_goal_obj = scene.add.sprite(-50, -50, 'enemy_goal');
+    }
+
     //if(new_state.players[scene.player_id].spectating)
         //new_state.game_state = SPECTATING;
 
@@ -146,6 +180,7 @@ var config = {
     width: 1600,
     height: 800,
     scene: scene,
+    parent: 'game',
     backgroundColor: '#d5f5f7',
 }
 

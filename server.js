@@ -50,16 +50,16 @@ io.on('connection', (socket) => {
             keys.array.forEach(key => {
                 switch (key) {
                     case 87 :  // W
-                        y-=1;
+                        state.players[socket.id].y-=1;
                         break;
                     case 65 : // A
-                        x-=1;
+                        state.players[socket.id].x-=1;
                         break;
                     case 83 : // S
-                        y+=1;
+                        state.players[socket.id].y+=1;
                         break;
                     case 68 : // D
-                        x+=1;
+                        state.players[socket.id].x+=1;
                         break;
                 }
             });

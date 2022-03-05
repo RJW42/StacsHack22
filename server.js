@@ -73,13 +73,12 @@ global.phaserOnNodeFPS = FPS
 class MainScene extends Phaser.Scene {
   update(){
     var new_state = {
-        players: [
-            {
-                x: 0,
-                y: 0,
-                id: placeholder_id
-            }
-        ]    
+        players: {
+        }
+    };
+    new_state.players[placeholder_id] = {
+        x: 0,
+        y: 0
     };
     io.emit('update', {
         new_state

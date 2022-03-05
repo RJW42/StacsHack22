@@ -24,7 +24,7 @@ scene.update = () => {
 scene.update_state = (state) => {
     // Convert the state to client side 
     let new_state = null;
-
+    
 
     // Update the state 
     scene.state = new_state;

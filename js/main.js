@@ -4,8 +4,8 @@ scene.connected = false;
 
 scene.preload = () => {
     // Load all assets 
-    scene.load.image('player', 'http://138.251.29.186:8081/assets/sprites/player.png');
-    scene.load.image('enemy', 'http://138.251.29.186:8081/assets/sprites/enemy.png');
+    scene.load.image('player', 'assets/sprites/player.png');
+    scene.load.image('enemy', 'assets/sprites/enemy.png');
     scene.keys = {
         up: scene.input.keyboard.addKey('W'),
         down: scene.input.keyboard.addKey('S'),

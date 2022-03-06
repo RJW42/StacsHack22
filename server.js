@@ -108,6 +108,10 @@ io.on('connection', (socket) => {
         // New Player Connected. The following code is specific to that player 
         socket.id = server.last_player_id++;
         console.log('new player: ', socket.id);
+
+        if(data.username.length > 10){
+            data.username = data.username.slice(0, 10);
+        }
         
         socket.player = {
             x: randomInt(0, 1400),

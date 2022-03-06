@@ -5,5 +5,13 @@ body {
 
 .container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+}
+
+.usernames {
+    width: 200px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: block;
+    overflow: hidden;
 }

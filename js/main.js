@@ -37,6 +37,7 @@ const WAITING_FOR_PLAYERS = 1; //Symbol('Waiting');
 const COUNT_DOWN = 2; //Symbol('CountDown');
 const SPECTATING = 3;
 
+var usernames_set = false;
 
 scene.dead_body_obj = null;
 
@@ -70,8 +71,8 @@ scene.update = () => {
     // Check if state is set 
     if(scene.state == null)
         return;
-    
-        console.log(scene.get_usernames());
+
+    scene.get_usernames();
 
     // State set render the state 
     for(const [player_id, player] of Object.entries(scene.state.players)){
@@ -164,6 +165,7 @@ scene.update_state = (server_state) => {
         if(scene.state.players[player_id]){
             obj = scene.state.players[player_id].obj;
         } else {
+            usernames_set = false;
             console.log('sprite', player_id, server_state.players[player_id].team);
             if(player_id == scene.player_id){
                 obj = scene.add.sprite(-50, -50, 'player');
@@ -198,6 +200,7 @@ scene.update_state = (server_state) => {
     for(var player_id in scene.state.players){
         if(!new_state.players[player_id]){
             scene.state.players[player_id].obj.destroy(true);
+            usernames_set = false;
         }
     }
 
@@ -206,20 +209,32 @@ scene.update_state = (server_state) => {
 }
 
 scene.get_usernames = () => {
+    if(scene.state == null)
+        return;
+    if(usernames_set)
+        return;
+    usernames_set = true;
+
+    // Get all usernames 
     var usernames = {
-        team_0: [],
-        team_1: []
+        team_0: "",
+        team_1: ""
     }
 
-    for(var player in this.scene.state.players){
+    for(var player_id in scene.state.players){
+        var player = scene.state.players[player_id];
         if(player.team == 0){
-          usernames.team_0.push(player.username);
+            usernames.team_0 = usernames.team_0.concat("<li>",player.username,"</li>");
         } else {
-          usernames.team_1.push(player.username);
+            usernames.team_1 = usernames.team_1.concat("<li>",player.username,"</li>");
         }
     }
 
-    return usernames;
+    console.log(usernames);
+
+    // Set those usernames 
+    $('#team-0-column').html('<ul><li><h2>Team 0</h2></li>' + usernames.team_0 + '</ul>');
+    $('#team-1-column').html('<ul><li><h2>Team 1</h2></li>' + usernames.team_1 + '</ul>');
 }
 
 scene.state = {
@@ -236,7 +251,7 @@ var config = {
     },        
     scene: [title_scene, scene],
     parent: 'game',
-    backgroundColor: '#d5f5f7',
+    backgroundColor: '#70a4c9',
 }
 
 var game = new Phaser.Game(config);

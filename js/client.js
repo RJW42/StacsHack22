@@ -11,10 +11,12 @@ Client.socket.on('init',function(data){
 });
 
 // All client side code 
-Client.connect = function(){
+Client.connect = function(username){
     // Create new connection to server 
     scene.state.id = 0;
-    Client.socket.emit('connect_to_server');
+    Client.socket.emit('connect_to_server', {
+        username: username
+    });
 };
 
 Client.socket.on('update', (state) => {

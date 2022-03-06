@@ -21,8 +21,12 @@ app.get('/',function(req,res){
     res.sendFile(__dirname+'/index.html');
 });
 
+app.get('/backend/',function(req,res){
+    res.sendFile(__dirname+'/backend.html');
+});
 
-server.listen(8081,function(){ // Listens to port 8081
+
+server.listen(42564,function(){ // Listens to port 8081
     console.log('Listening on '+server.address().port);
 });
 
@@ -47,12 +51,60 @@ var state = {
     team_1_count: 0,
     dead_body_pos: {x: 800, y: 400},
     dead_body_body: null,
+    reset_ball: false,
 }
 var connections = {} // Todo: store what conn is what player maybe 
 var removes = []
 
 io.on('connection', (socket) => {
-    socket.on('connect_to_server', () => {
+    socket.on('connect_to_server_backend', (data) => {
+        if(data.password !== 'ligma'){
+            console.log('bad password');
+            socket.disconnect();1
+            return;
+        }
+        console.log('good password to backend')
+
+        socket.emit('connected');
+
+        socket.on('start', () => {
+            console.log('starting game');
+            state.game_state = PLAYING
+        });
+
+        socket.on('reset', () => {
+            console.log('resetting game');
+            state.team_0_score = 0;
+            state.team_1_score = 0;
+            state.reset_ball = true;
+        })
+
+        socket.on('purge', () => {
+            return;
+            /*
+            console.log('purging game');
+            state.players = {
+            
+                },
+            state.game_state = WAITING_FOR_PLAYERS;
+            state.time_left = 0;
+            state.team_0_score = 0;
+            state.team_1_score = 0;
+            state.team_0_count = 0;
+            state.team_1_count = 0;
+            state.reset_ball = true;
+            
+            for(const [id_, socket_] of Object.entries(connections)){
+                removes.push(socket_.player.body);
+                socket_.disconnect();
+            }
+
+            connections = {};
+            */
+        })
+    });
+
+    socket.on('connect_to_server', (data) => {
         // New Player Connected. The following code is specific to that player 
         socket.id = server.last_player_id++;
         console.log('new player: ', socket.id);
@@ -64,16 +116,17 @@ io.on('connection', (socket) => {
             vely: 0,
             team: 0,
             body: null,
+            username: data.username
         };
 
         if(state.team_0_count < state.team_1_count){
             // Add to team 0
-            console.log(' - Team 0');
+            console.log(' - Team 0', state.team_1_count + 1);
             state.team_0_count++;
             socket.player.team = 0;
         } else {
             // Add to team 1
-            console.log(' - Team 1');
+            console.log(' - Team 1: ', state.team_1_count + 1);
             state.team_1_count++;
             socket.player.team = 1;
         } 
@@ -163,6 +216,12 @@ class MainScene extends Phaser.Scene {
     // Update game state 
     this.update_game_state();
 
+    if(state.reset_ball){
+        this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+        this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
+        state.reset_ball = false;
+    }
+
     // Remove any dead collisions 
     removes.forEach(body => {
         this.matter.world.remove(body);    
@@ -221,7 +280,8 @@ class MainScene extends Phaser.Scene {
             x: x,
             y: y,
             //spectating: value.spectating,
-            team: value.team
+            team: value.team,
+            username: value.username
         }
     }
     

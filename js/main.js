@@ -1,4 +1,34 @@
 var scene = new Phaser.Scene('Game');
+var title_scene = new Phaser.Scene('Title');
+var username = "";
+
+
+title_scene.preload = () => {
+    title_scene.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
+    title_scene.input_key = title_scene.input.keyboard.addKey('enter');
+}
+
+title_scene.create = () => {
+    title_scene.input_text = title_scene.add.rexInputText(800, 400, 500, 50, {
+        type: 'text',
+        text: '...',
+        fontSize: '50px',
+        color: 'black',
+        borderColor: 'black',
+        border: 1,
+    });
+    title_scene.add.text(280, 375, 'Username: ', {
+        fontSize: 50,
+        color: 'black',
+    });
+}
+
+title_scene.update = () => {
+    if(title_scene.input_key.isDown && title_scene.input_text.text.length > 3 && title_scene.input_text.text != '...'){
+        username = title_scene.input_text.text;
+        title_scene.scene.start('Game');
+    }
+}
 
 scene.connected = false;
 
@@ -33,13 +63,14 @@ scene.preload = () => {
 
 scene.create = () => {
     console.log('Start');
-    Client.connect();
+    Client.connect(username);
 }
 
 scene.update = () => {
     // Check if state is set 
     if(scene.state == null)
         return;
+        console.log(scene.state.players);
 
     // State set render the state 
     for(const [player_id, player] of Object.entries(scene.state.players)){
@@ -92,6 +123,8 @@ scene.update = () => {
 scene.draw_text = () => {
     switch(scene.state.game_state){
         case PLAYING:
+            //var player_score = (scene.player_team == 0) ? scene.state.team_0_score : scene.state.team_1_score;
+            //var enemy_score = (scene.player_team == 1) ? scene.state.team_0_score : scene.state.team_1_score;
             scene.score_text.setText('Score: ' + scene.state.team_0_score + '-' + scene.state.team_1_score);
             break;
         case WAITING_FOR_PLAYERS:
@@ -146,6 +179,7 @@ scene.update_state = (server_state) => {
             y: server_state.players[player_id].y,
             obj: obj,
             team: server_state.players[player_id].team,
+            username: server_state.players[player_id].username
         }
     }
 
@@ -179,7 +213,10 @@ var config = {
     type: Phaser.AUTO,
     width: 1600,
     height: 800,
-    scene: scene,
+    dom: {
+        createContainer: true
+    },        
+    scene: [title_scene, scene],
     parent: 'game',
     backgroundColor: '#d5f5f7',
 }

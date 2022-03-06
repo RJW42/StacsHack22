@@ -49,7 +49,7 @@ var state = {
     team_1_score: 0,
     team_0_count: 0,
     team_1_count: 0,
-    dead_body_pos: {x: 800, y: 400},
+    dead_body_pos: {x: 700, y: 400},
     dead_body_body: null,
     reset_ball: false,
 }
@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
         console.log('new player: ', socket.id);
         
         socket.player = {
-            x: randomInt(0, 1600),
+            x: randomInt(0, 1400),
             y: randomInt(0, 800),
             velx: 0,
             vely: 0,
@@ -201,7 +201,7 @@ class MainScene extends Phaser.Scene {
         this.goal_left();
     })
     state.team_1_goal = this.matter.bodies.rectangle(
-        1600 - 8, 400, 16, 128, {isStatic: true}
+        1400 - 8, 400, 16, 128, {isStatic: true}
     );
     state.team_1_goal.setOnCollideWith(state.dead_body_body, (pair) => {
         this.goal_right();
@@ -217,7 +217,7 @@ class MainScene extends Phaser.Scene {
     this.update_game_state();
 
     if(state.reset_ball){
-        this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+        this.matter.body.setPosition(state.dead_body_body, {x: 700, y: 400});
         this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
         state.reset_ball = false;
     }
@@ -292,14 +292,14 @@ class MainScene extends Phaser.Scene {
 
   goal_left(){
     state.team_1_score++;
-    this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+    this.matter.body.setPosition(state.dead_body_body, {x: 700, y: 400});
     this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
     
   }
 
   goal_right(){
     state.team_0_score++;
-    this.matter.body.setPosition(state.dead_body_body, {x: 800, y: 400});
+    this.matter.body.setPosition(state.dead_body_body, {x: 700, y: 400});
     this.matter.body.setVelocity(state.dead_body_body, {x: 0, y: 0});
   }
 
@@ -323,7 +323,7 @@ class MainScene extends Phaser.Scene {
 // prepare the config for Phaser
 const config = {
   type: Phaser.HEADLESS,
-  width: 1600,
+  width: 1400,
   height: 800,
   banner: false,
   audio: false,

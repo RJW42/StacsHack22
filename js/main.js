@@ -9,7 +9,7 @@ title_scene.preload = () => {
 }
 
 title_scene.create = () => {
-    title_scene.input_text = title_scene.add.rexInputText(800, 400, 500, 50, {
+    title_scene.input_text = title_scene.add.rexInputText(700, 400, 500, 50, {
         type: 'text',
         text: '...',
         fontSize: '50px',
@@ -17,7 +17,7 @@ title_scene.create = () => {
         borderColor: 'black',
         border: 1,
     });
-    title_scene.add.text(280, 375, 'Username: ', {
+    title_scene.add.text(180, 375, 'Username: ', {
         fontSize: 50,
         color: 'black',
     });
@@ -70,7 +70,8 @@ scene.update = () => {
     // Check if state is set 
     if(scene.state == null)
         return;
-        console.log(scene.state.players);
+    
+        console.log(scene.get_usernames());
 
     // State set render the state 
     for(const [player_id, player] of Object.entries(scene.state.players)){
@@ -204,6 +205,23 @@ scene.update_state = (server_state) => {
     scene.state = new_state;
 }
 
+scene.get_usernames = () => {
+    var usernames = {
+        team_0: [],
+        team_1: []
+    }
+
+    for(var player in this.scene.state.players){
+        if(player.team == 0){
+          usernames.team_0.push(player.username);
+        } else {
+          usernames.team_1.push(player.username);
+        }
+    }
+
+    return usernames;
+}
+
 scene.state = {
     id: 0,
     players: {}
@@ -211,7 +229,7 @@ scene.state = {
 
 var config = {
     type: Phaser.AUTO,
-    width: 1600,
+    width: 1400,
     height: 800,
     dom: {
         createContainer: true

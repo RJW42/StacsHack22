@@ -188,6 +188,11 @@ io.on('connection', (socket) => {
 const FPS = 60
 global.phaserOnNodeFPS = FPS
 
+var last_colision = {
+    username: null,
+    time_since: 5,
+}
+
 // your MainScene
 class MainScene extends Phaser.Scene {
   create(){
@@ -203,12 +208,14 @@ class MainScene extends Phaser.Scene {
     );
     state.team_0_goal.setOnCollideWith(state.dead_body_body, (pair) => {
         this.goal_left();
+        last_colision.time_since = 0;
     })
     state.team_1_goal = this.matter.bodies.rectangle(
         1400 - 8, 400, 16, 128, {isStatic: true}
     );
     state.team_1_goal.setOnCollideWith(state.dead_body_body, (pair) => {
         this.goal_right();
+        last_colision.time_since = 0;
     })
 
     this.matter.world.add(state.dead_body_body);
@@ -219,6 +226,7 @@ class MainScene extends Phaser.Scene {
   update(){
     // Update game state 
     this.update_game_state();
+    last_colision.time_since += 1.0/60.0;
 
     if(state.reset_ball){
         this.matter.body.setPosition(state.dead_body_body, {x: 700, y: 400});
@@ -238,6 +246,10 @@ class MainScene extends Phaser.Scene {
         //     continue;
         if(value.body == null){
             value.body = this.matter.bodies.rectangle(value.x, value.y, 21, 32);
+            
+            value.body.setOnCollideWith(state.dead_body_body, () => {
+                last_colision.username = value.username;
+            });
 
             this.matter.world.add(value.body);
         }
@@ -255,6 +267,7 @@ class MainScene extends Phaser.Scene {
         team_1_score: state.team_1_score,
         team_0_count: state.team_0_count,
         team_1_count: state.team_1_count,
+        last_colision: last_colision,
         dead_body_pos: {
             x: state.dead_body_body.position.x,
             y: state.dead_body_body.position.y

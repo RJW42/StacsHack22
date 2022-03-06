@@ -60,6 +60,10 @@ scene.preload = () => {
         fontSize: 60,
         color: 'black',
     });
+    scene.goal_text = scene.add.text(0, 60, '', {
+        fontSize: 60,
+        color: 'black',
+    })
 }
 
 scene.create = () => {
@@ -71,7 +75,6 @@ scene.update = () => {
     // Check if state is set 
     if(scene.state == null)
         return;
-
     scene.get_usernames();
 
     // State set render the state 
@@ -155,7 +158,8 @@ scene.update_state = (server_state) => {
         team_1_score: server_state.team_1_score,
         dead_body_pos: server_state.dead_body_pos,
         team_0_goal_pos: server_state.team_0_goal_pos,
-        team_1_goal_pos: server_state.team_1_goal_pos
+        team_1_goal_pos: server_state.team_1_goal_pos,
+        last_colision: server_state.last_colision
     }
 
     for(var player_id in server_state.players) {
